@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Favorites</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        🎬 MediaHub
+    </div>
+
+    <ul>
+
+        <li><a href="/">Home</a></li>
+
+        <li><a href="/movies">Movies</a></li>
+
+        <li><a href="/watchlist">Watchlist</a></li>
+
+    </ul>
+
+</nav>
+
+<div class="container">
+
+    <h1>Favorite Movies</h1>
+
+    <br><br>
+
+    <div class="movies-grid">
+
+        {% for movie in favorites %}
+
+        <div class="movie-card">
+
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.image }}">
+
+            <h3>{{ movie.title }}</h3>
+
+            <p>⭐ {{ movie.rating }}</p>
+
+            <div class="buttons">
+
+                <a href="/delete_favorite/{{ movie.id }}">
+                    <button>Delete</button>
+                </a>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    <br><br><br>
+
+    <h1>Favorite Songs</h1>
+
+    <br><br>
+
+    <div class="movies-grid">
+
+        {% for song in songs %}
+
+        <div class="movie-card">
+
+            <img src="{{ song.image }}">
+
+            <h3>{{ song.title }}</h3>
+
+            <p>{{ song.artist }}</p>
+
+            <div class="buttons">
+
+                <a target="_blank"
+                   href="{{ song.spotify_url }}">
+
+                    <button>
+                        Open Spotify
+                    </button>
+
+                </a>
+
+                <a href="/delete_song/{{ song.id }}">
+                    <button>Delete</button>
+                </a>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

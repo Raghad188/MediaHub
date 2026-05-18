@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MediaHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        🎬 MediaHub
+    </div>
+
+    <ul>
+
+        <li><a href="/">Home</a></li>
+
+        <li><a href="/movies">Movies</a></li>
+
+        <li><a href="/music">Music</a></li>
+
+        <li><a href="/favorites">Favorites</a></li>
+
+        <li><a href="/watchlist">Watchlist</a></li>
+
+        <li><a href="/profile">Profile</a></li>
+
+        {% if session.get("user_id") %}
+
+        <li><a href="/logout">Logout</a></li>
+
+        {% else %}
+
+        <li><a href="/login">Login</a></li>
+
+        {% endif %}
+
+    </ul>
+
+</nav>
+
+<div class="container hero">
+
+    <h1>
+        Your Entertainment World
+    </h1>
+
+    <p>
+        Discover movies and music and create your own favorites collection.
+    </p>
+
+    <a href="/movies">
+        <button>Explore Movies</button>
+    </a>
+
+</div>
+
+</body>
+</html>

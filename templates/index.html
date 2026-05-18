@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MediaHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        🎬🎵 MediaHub
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/">Home</a>
+
+        <a href="/movies">Movies</a>
+
+        <a href="/music">Music</a>
+
+        <a href="/favorites">Favorites</a>
+
+        {% if "user_id" in session %}
+
+        <a href="/profile">Profile</a>
+
+        <a href="/logout">Logout</a>
+
+        {% else %}
+
+        <a href="/login">Login</a>
+
+        <a href="/register">Register</a>
+
+        {% endif %}
+
+    </div>
+
+</nav>
+
+<section class="hero">
+
+    <h1>
+
+        Discover Movies & Music Like Never Before
+
+    </h1>
+
+    <p>
+
+        Explore trending movies, search your favorite songs,
+        create watchlists, rate films and build your own entertainment world.
+
+    </p>
+
+    <a href="/movies"
+       class="hero-btn">
+
+       Explore Now
+
+    </a>
+
+</section>
+
+</body>
+</html>

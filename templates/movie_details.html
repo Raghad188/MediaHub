@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>{{ movie.title }}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        🎬 MediaHub
+    </div>
+
+    <ul>
+
+        <li><a href="/">Home</a></li>
+
+        <li><a href="/movies">Movies</a></li>
+
+        <li><a href="/favorites">Favorites</a></li>
+
+        <li><a href="/watchlist">Watchlist</a></li>
+
+    </ul>
+
+</nav>
+
+<div class="container">
+
+    <div class="details">
+
+        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}">
+
+        <div class="details-content">
+
+            <h1>{{ movie.title }}</h1>
+
+            <p>{{ movie.overview }}</p>
+
+            <br>
+
+            <p>⭐ {{ movie.vote_average }}</p>
+
+            <br>
+
+            {% if movie.videos.results %}
+
+            <a target="_blank"
+               href="https://youtube.com/watch?v={{ movie.videos.results[0].key }}">
+
+                <button>
+                    Watch Trailer
+                </button>
+
+            </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <div class="comment-section">
+
+        <h1>Comments</h1>
+
+        <form action="/comment/{{ movie.id }}"
+              method="POST">
+
+            <input
+                type="text"
+                name="text"
+                placeholder="Write a comment..."
+            >
+
+            <button>
+                Post
+            </button>
+
+        </form>
+
+        {% for comment in comments %}
+
+        <div class="comment-box">
+
+            <h3>{{ comment.username }}</h3>
+
+            <p>{{ comment.text }}</p>
+
+            <br>
+
+            <a href="/delete_comment/{{ comment.id }}">
+                <button>Delete</button>
+            </a>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

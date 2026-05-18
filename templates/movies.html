@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Movies</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        🎬 MediaHub
+    </div>
+
+    <ul>
+
+        <li><a href="/">Home</a></li>
+
+        <li><a href="/music">Music</a></li>
+
+        <li><a href="/favorites">Favorites</a></li>
+
+        <li><a href="/watchlist">Watchlist</a></li>
+
+        <li><a href="/profile">Profile</a></li>
+
+    </ul>
+
+</nav>
+
+<div class="container">
+
+    <form class="search-box">
+
+        <input
+            type="text"
+            name="search"
+            placeholder="Search movie..."
+        >
+
+    </form>
+
+    <div class="movies-grid">
+
+        {% for movie in movies %}
+
+        <div class="movie-card">
+
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}">
+
+            <h3>{{ movie.title }}</h3>
+
+            <p>⭐ {{ movie.vote_average }}</p>
+
+            <div class="buttons">
+
+                <a href="/movie/{{ movie.id }}">
+                    <button>Details</button>
+                </a>
+
+                <a href="/add_favorite/{{ movie.id }}">
+                    <button>Favorite</button>
+                </a>
+
+                <a href="/add_watchlist/{{ movie.id }}">
+                    <button>Watchlist</button>
+                </a>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

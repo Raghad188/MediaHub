@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Music | MediaHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        🎬🎵 MediaHub
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/">Home</a>
+
+        <a href="/movies">Movies</a>
+
+        <a href="/music">Music</a>
+
+        <a href="/favorites">Favorites</a>
+
+        <a href="/logout">Logout</a>
+
+    </div>
+
+</nav>
+
+<h1 class="page-title">
+    🎵 Music
+</h1>
+
+<div class="search-box">
+
+    <form method="POST">
+
+        <input type="text"
+               name="search"
+               placeholder="Search songs...">
+
+        <button type="submit">
+            Search
+        </button>
+
+    </form>
+
+</div>
+
+<div class="music-container">
+
+    {% for track in tracks %}
+
+    <div class="music-card">
+
+        <img
+            src="{{ track.album.images[0].url }}"
+            alt="{{ track.name }}"
+        >
+
+        <h3>
+            {{ track.name }}
+        </h3>
+
+        <p>
+            {{ track.artists[0].name }}
+        </p>
+
+        {% if track.preview_url %}
+
+        <audio controls>
+
+            <source src="{{ track.preview_url }}"
+                    type="audio/mpeg">
+
+        </audio>
+
+        {% endif %}
+
+        <br><br>
+
+        <a class="spotify-link"
+           target="_blank"
+           href="{{ track.external_urls.spotify }}">
+
+           Listen on Spotify
+
+        </a>
+
+        <br><br>
+
+        <form action="/add-song/{{ track.id }}"
+              method="POST">
+
+            <button class="fav-btn">
+
+                ❤️ Favorite
+
+            </button>
+
+        </form>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+</body>
+</html>
