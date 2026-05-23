@@ -28,11 +28,11 @@ db = SQLAlchemy(app)
 # APIs
 # =========================================================
 
-TMDB_API_KEY = "8de0a0ea1a24e82f42932cd4b45f6ae5"
+TMDB_API_KEY = ""
 
-SPOTIFY_CLIENT_ID = "7666206bc9c6415193ec32813b5698f9"
+SPOTIFY_CLIENT_ID = ""
 
-SPOTIFY_CLIENT_SECRET = "b62724be99c54773ac83cba3c2d21147"
+SPOTIFY_CLIENT_SECRET = ""
 
 
 sp = spotipy.Spotify(
