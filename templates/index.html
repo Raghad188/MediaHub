@@ -1,79 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediaHub</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
 <nav>
-
-    <div class="logo">
-        🎬🎵 MediaHub
-    </div>
-
-    <div class="nav-links">
-
-        <a href="/">Home</a>
-
-        <a href="/movies">Movies</a>
-
-        <a href="/music">Music</a>
-
-        <a href="/favorites">Favorites</a>
-
-        {% if "user_id" in session %}
-
-        <a href="/profile">Profile</a>
-
-        <a href="/logout">Logout</a>
-
+    <div class="logo">MediaHub</div>
+    <ul>
+        <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('movies') }}">Movies</a></li>
+        <li><a href="{{ url_for('music') }}">Music</a></li>
+        <li><a href="{{ url_for('favorites') }}">Favorites</a></li>
+        {% if session.get("user_id") %}
+        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+        <li>
+            <form class="nav-form" action="{{ url_for('logout') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit">Logout</button>
+            </form>
+        </li>
         {% else %}
-
-        <a href="/login">Login</a>
-
-        <a href="/register">Register</a>
-
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
         {% endif %}
-
-    </div>
-
+    </ul>
 </nav>
 
-<section class="hero">
-
-    <h1>
-
-        Discover Movies & Music Like Never Before
-
-    </h1>
-
-    <p>
-
-        Explore trending movies, search your favorite songs,
-        create watchlists, rate films and build your own entertainment world.
-
-    </p>
-
-    <a href="/movies"
-       class="hero-btn">
-
-       Explore Now
-
+<main class="container hero">
+    <h1>Discover Movies and Music Like Never Before</h1>
+    <p>Explore trending movies, search songs, create watchlists, rate films, and build your own entertainment world.</p>
+    <a href="{{ url_for('movies') }}">
+        <button type="button">Explore Now</button>
     </a>
-
-</section>
+</main>
 
 </body>
 </html>

@@ -1,110 +1,118 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-    <title>{{ movie.title }}</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie.title }} | MediaHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
 <nav>
-
-    <div class="logo">
-        🎬 MediaHub
-    </div>
-
+    <div class="logo">MediaHub</div>
     <ul>
-
-        <li><a href="/">Home</a></li>
-
-        <li><a href="/movies">Movies</a></li>
-
-        <li><a href="/favorites">Favorites</a></li>
-
-        <li><a href="/watchlist">Watchlist</a></li>
-
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a class="active" href="{{ url_for('movies') }}">Movies</a></li>
+        <li><a href="{{ url_for('music') }}">Music</a></li>
+        <li><a href="{{ url_for('favorites') }}">Favorites</a></li>
+        <li><a href="{{ url_for('watchlist_page') }}">Watchlist</a></li>
+        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+        {% if session.get("user_id") %}
+        <li>
+            <form class="nav-form" action="{{ url_for('logout') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit">Logout</button>
+            </form>
+        </li>
+        {% else %}
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        {% endif %}
     </ul>
-
 </nav>
 
 <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-list">
+            {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
 
     <div class="details">
-
-        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}">
-
+        <img src="{{ poster_url(movie.poster_path) }}" alt="{{ movie.title }}">
         <div class="details-content">
-
             <h1>{{ movie.title }}</h1>
-
-            <p>{{ movie.overview }}</p>
-
-            <br>
-
-            <p>⭐ {{ movie.vote_average }}</p>
-
-            <br>
-
-            {% if movie.videos.results %}
-
-            <a target="_blank"
-               href="https://youtube.com/watch?v={{ movie.videos.results[0].key }}">
-
-                <button>
-                    Watch Trailer
-                </button>
-
-            </a>
-
+            <p>{{ movie.overview or "No overview is available for this movie." }}</p>
+            <p>TMDB rating: {{ movie.vote_average or "N/A" }}</p>
+            <p>MediaHub average: {{ average_rating or "No ratings yet" }}</p>
+            {% if user_rating %}
+            <p>Your rating: {{ user_rating.value }}/10</p>
             {% endif %}
 
-        </div>
+            <form class="rating-form" action="{{ url_for('rate_movie', movie_id=movie.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <select name="rating" aria-label="Movie rating">
+                    {% for score in range(1, 11) %}
+                    <option value="{{ score }}" {% if user_rating and user_rating.value == score %}selected{% endif %}>{{ score }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Save Rating</button>
+            </form>
 
+            <div class="button-row">
+                <form action="{{ url_for('add_favorite', movie_id=movie.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit">Add Favorite</button>
+                </form>
+                <form action="{{ url_for('add_watchlist', movie_id=movie.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit">Add Watchlist</button>
+                </form>
+            </div>
+
+            {% if movie.videos and movie.videos.results %}
+            <a class="button-link trailer" target="_blank" href="https://youtube.com/watch?v={{ movie.videos.results[0].key }}">
+                Watch Trailer
+            </a>
+            {% endif %}
+        </div>
     </div>
 
     <div class="comment-section">
-
-        <h1>Comments</h1>
-
-        <form action="/comment/{{ movie.id }}"
-              method="POST">
-
-            <input
-                type="text"
-                name="text"
-                placeholder="Write a comment..."
-            >
-
-            <button>
-                Post
-            </button>
-
+        <h2>Comments</h2>
+        <form action="{{ url_for('comment', movie_id=movie.id) }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text" name="text" placeholder="Write a comment..." required>
+            <button type="submit">Post</button>
         </form>
 
-        {% for comment in comments %}
-
-        <div class="comment-box">
-
-            <h3>{{ comment.username }}</h3>
-
-            <p>{{ comment.text }}</p>
-
-            <br>
-
-            <a href="/delete_comment/{{ comment.id }}">
-                <button>Delete</button>
-            </a>
-
-        </div>
-
-        {% endfor %}
-
+        {% if comments %}
+            {% for comment in comments %}
+            <div class="comment-box">
+                <div class="comment-meta">
+                    <strong>{{ comment.username }}</strong>
+                    <span>
+                        {% if comment.created_at %}
+                        {{ comment.created_at.strftime("%Y-%m-%d %H:%M") }}
+                        {% endif %}
+                    </span>
+                </div>
+                <p>{{ comment.text }}</p>
+                {% if session.get("user_id") == comment.user_id %}
+                <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit">Delete</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="empty-state">No comments yet.</div>
+        {% endif %}
     </div>
-
 </div>
 
 </body>

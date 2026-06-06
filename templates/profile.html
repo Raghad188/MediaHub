@@ -1,68 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-    <title>Profile</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | MediaHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
 <nav>
-
-    <div class="logo">
-        🎬 MediaHub
-    </div>
-
+    <div class="logo">MediaHub</div>
     <ul>
-
-        <li><a href="/">Home</a></li>
-
-        <li><a href="/movies">Movies</a></li>
-
-        <li><a href="/favorites">Favorites</a></li>
-
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('movies') }}">Movies</a></li>
+        <li><a href="{{ url_for('music') }}">Music</a></li>
+        <li><a href="{{ url_for('favorites') }}">Favorites</a></li>
+        <li><a href="{{ url_for('watchlist_page') }}">Watchlist</a></li>
+        <li><a class="active" href="{{ url_for('profile') }}">Profile</a></li>
+        <li>
+            <form class="nav-form" action="{{ url_for('logout') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit">Logout</button>
+            </form>
+        </li>
     </ul>
-
 </nav>
 
 <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-list">
+            {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
 
     <div class="profile-box">
-
-        <img src="{{ user.avatar }}">
-
-        <h1>{{ user.username }}</h1>
-
-        <br>
-
-        <p>{{ user.bio }}</p>
-
-    </div>
-
-    <h1>Recently Viewed</h1>
-
-    <br><br>
-
-    <div class="movies-grid">
-
-        {% for movie in recent %}
-
-        <div class="movie-card">
-
-            <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=6C63FF&color=fff&size=200">
-
-            <h3>{{ movie.title }}</h3>
-
+        <img src="{{ user.avatar or default_avatar }}"
+             onerror="this.onerror=null;this.src='{{ default_avatar }}';"
+             alt="{{ user.username }}">
+        <div>
+            <h1>{{ user.username }}</h1>
+            <p>{{ user.bio or "Movie lover" }}</p>
         </div>
-
-        {% endfor %}
-
     </div>
 
+    <div class="stats-grid">
+        <div class="stat-card"><strong>{{ stats.ratings }}</strong><span>Ratings</span></div>
+        <div class="stat-card"><strong>{{ stats.favorites }}</strong><span>Favorites</span></div>
+        <div class="stat-card"><strong>{{ stats.watchlist }}</strong><span>Watchlist</span></div>
+        <div class="stat-card"><strong>{{ stats.comments }}</strong><span>Comments</span></div>
+    </div>
+
+    <div class="page-header section-header">
+        <h1>Recently Viewed</h1>
+    </div>
+
+    {% if recent %}
+    <div class="movies-grid">
+        {% for movie in recent %}
+        <div class="movie-card">
+            <img src="{{ poster_url(movie.image) }}" alt="{{ movie.title }}">
+            <div class="card-body">
+                <h3>{{ movie.title }}</h3>
+                <a class="button-link" href="{{ url_for('movie_details', movie_id=movie.movie_id) }}">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">No recently viewed movies yet.</div>
+    {% endif %}
 </div>
 
 </body>

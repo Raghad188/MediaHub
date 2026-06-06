@@ -1,121 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music | MediaHub</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
 <nav>
-
-    <div class="logo">
-        🎬🎵 MediaHub
-    </div>
-
-    <div class="nav-links">
-
-        <a href="/">Home</a>
-
-        <a href="/movies">Movies</a>
-
-        <a href="/music">Music</a>
-
-        <a href="/favorites">Favorites</a>
-
-        <a href="/logout">Logout</a>
-
-    </div>
-
+    <div class="logo">MediaHub</div>
+    <ul>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('movies') }}">Movies</a></li>
+        <li><a class="active" href="{{ url_for('music') }}">Music</a></li>
+        <li><a href="{{ url_for('favorites') }}">Favorites</a></li>
+        <li><a href="{{ url_for('watchlist_page') }}">Watchlist</a></li>
+        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+        {% if session.get("user_id") %}
+        <li>
+            <form class="nav-form" action="{{ url_for('logout') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit">Logout</button>
+            </form>
+        </li>
+        {% else %}
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        {% endif %}
+    </ul>
 </nav>
 
-<h1 class="page-title">
-    🎵 Music
-</h1>
-
-<div class="search-box">
-
-    <form method="POST">
-
-        <input type="text"
-               name="search"
-               placeholder="Search songs...">
-
-        <button type="submit">
-            Search
-        </button>
-
-    </form>
-
-</div>
-
-<div class="music-container">
-
-    {% for track in tracks %}
-
-    <div class="music-card">
-
-        <img
-            src="{{ track.album.images[0].url }}"
-            alt="{{ track.name }}"
-        >
-
-        <h3>
-            {{ track.name }}
-        </h3>
-
-        <p>
-            {{ track.artists[0].name }}
-        </p>
-
-        {% if track.preview_url %}
-
-        <audio controls>
-
-            <source src="{{ track.preview_url }}"
-                    type="audio/mpeg">
-
-        </audio>
-
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-list">
+            {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
         {% endif %}
+    {% endwith %}
 
-        <br><br>
-
-        <a class="spotify-link"
-           target="_blank"
-           href="{{ track.external_urls.spotify }}">
-
-           Listen on Spotify
-
-        </a>
-
-        <br><br>
-
-        <form action="/add-song/{{ track.id }}"
-              method="POST">
-
-            <button class="fav-btn">
-
-                ❤️ Favorite
-
-            </button>
-
+    <div class="page-header">
+        <h1>Music</h1>
+        <form class="search-box" method="GET" action="{{ url_for('music') }}">
+            <input type="text" name="search" value="{{ search }}" placeholder="Search songs...">
+            <button type="submit">Search</button>
         </form>
-
     </div>
 
-    {% endfor %}
+    {% if tracks %}
+    <div class="music-container">
+        {% for track in tracks %}
+        <div class="music-card">
+            {% set images = track.album.images %}
+            <img src="{{ images[0].url if images else default_avatar }}" alt="{{ track.name }}">
+            <h3>{{ track.name }}</h3>
+            <p>{{ track.artists[0].name if track.artists else "Unknown artist" }}</p>
 
+            {% if track.preview_url %}
+            <audio controls>
+                <source src="{{ track.preview_url }}" type="audio/mpeg">
+            </audio>
+            {% endif %}
+
+            <a class="button-link" target="_blank" href="{{ track.external_urls.spotify }}">Listen on Spotify</a>
+            <form action="{{ url_for('add_song', track_id=track.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit">Add Favorite</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">Music results are unavailable right now.</div>
+    {% endif %}
 </div>
 
 </body>

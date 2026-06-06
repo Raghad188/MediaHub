@@ -4,232 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movies | MediaHub</title>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-    <style>
-        .movies-container{
-            padding:40px;
-        }
-
-        .movies-grid{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-            gap:25px;
-            margin-top:30px;
-        }
-
-        .movie-card{
-            background:#111827;
-            border-radius:20px;
-            overflow:hidden;
-            transition:0.3s;
-            box-shadow:0 4px 15px rgba(0,0,0,0.4);
-        }
-
-        .movie-card:hover{
-            transform:translateY(-8px);
-        }
-
-        .movie-card img{
-            width:100%;
-            height:320px;
-            object-fit:cover;
-        }
-
-        .movie-content{
-            padding:18px;
-        }
-
-        .movie-content h3{
-            color:white;
-            margin-bottom:10px;
-        }
-
-        .movie-content p{
-            color:#9ca3af;
-            font-size:14px;
-            margin-bottom:15px;
-        }
-
-        .movie-buttons{
-            display:flex;
-            flex-direction:column;
-            gap:10px;
-        }
-
-        .movie-buttons a{
-            text-decoration:none;
-            text-align:center;
-            padding:10px;
-            border-radius:10px;
-            font-weight:bold;
-            transition:0.3s;
-        }
-
-        .details-btn{
-            background:#2563eb;
-            color:white;
-        }
-
-        .details-btn:hover{
-            background:#1d4ed8;
-        }
-
-        .rate-btn{
-            background:#f59e0b;
-            color:white;
-        }
-
-        .rate-btn:hover{
-            background:#d97706;
-        }
-
-        .favorite-btn{
-            background:#ec4899;
-            color:white;
-        }
-
-        .favorite-btn:hover{
-            background:#db2777;
-        }
-
-        .watchlist-btn{
-            background:#10b981;
-            color:white;
-        }
-
-        .watchlist-btn:hover{
-            background:#059669;
-        }
-
-        .movie-rating{
-            color:#facc15;
-            font-weight:bold;
-            margin-bottom:12px;
-        }
-
-        .navbar{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            padding:20px 40px;
-            background:#0b1120;
-        }
-
-        .logo{
-            color:#60a5fa;
-            font-size:35px;
-            font-weight:bold;
-        }
-
-        .nav-links a{
-            color:white;
-            text-decoration:none;
-            margin-left:20px;
-            font-weight:bold;
-        }
-
-        body{
-            margin:0;
-            background:#030712;
-            font-family:Arial;
-        }
-
-        h1{
-            color:white;
-        }
-    </style>
 </head>
-
 <body>
 
-<!-- ================= NAVBAR ================= -->
+<nav>
+    <div class="logo">MediaHub</div>
+    <ul>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a class="active" href="{{ url_for('movies') }}">Movies</a></li>
+        <li><a href="{{ url_for('music') }}">Music</a></li>
+        <li><a href="{{ url_for('favorites') }}">Favorites</a></li>
+        <li><a href="{{ url_for('watchlist_page') }}">Watchlist</a></li>
+        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+        {% if session.get("user_id") %}
+        <li>
+            <form class="nav-form" action="{{ url_for('logout') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit">Logout</button>
+            </form>
+        </li>
+        {% else %}
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        {% endif %}
+    </ul>
+</nav>
 
-<div class="navbar">
-
-    <div class="logo">
-        🎬 MediaHub
-    </div>
-
-    <div class="nav-links">
-        <a href="{{ url_for('home') }}">Home</a>
-        <a href="{{ url_for('movies') }}">Movies</a>
-        <a href="{{ url_for('music') }}">Music</a>
-        <a href="{{ url_for('favorites') }}">Favorites</a>
-        <a href="{{ url_for('watchlist_page') }}">Watchlist</a>
-        <a href="{{ url_for('profile') }}">Profile</a>
-        <a href="{{ url_for('logout') }}">Logout</a>
-    </div>
-
-</div>
-
-<!-- ================= MOVIES SECTION ================= -->
-
-<div class="movies-container">
-
-    <h1>Popular Movies 🎥</h1>
-
-    <div class="movies-grid">
-
-        {% for movie in movies %}
-
-        <div class="movie-card">
-
-            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="movie">
-
-            <div class="movie-content">
-
-                <h3>{{ movie.title }}</h3>
-
-                <div class="movie-rating">
-                    ⭐ {{ movie.vote_average }}
-                </div>
-
-                <p>
-                    {{ movie.overview[:100] }}...
-                </p>
-
-                <div class="movie-buttons">
-
-                    <!-- DETAILS -->
-
-                    <a href="{{ url_for('movie_details', movie_id=movie.id) }}"
-                       class="details-btn">
-                        View Details
-                    </a>
-
-                    <!-- RATE -->
-
-                    <a href="{{ url_for('rate_movie', movie_id=movie.id) }}"
-                       class="rate-btn">
-                        ⭐ Rate Movie
-                    </a>
-
-                    <!-- FAVORITES -->
-
-                    <a href="{{ url_for('add_to_favorites', movie_id=movie.id) }}"
-                       class="favorite-btn">
-                        ❤️ Add to Favorites
-                    </a>
-
-                    <!-- WATCHLIST -->
-
-                    <a href="{{ url_for('add_to_watchlist', movie_id=movie.id) }}"
-                       class="watchlist-btn">
-                        ➕ Add to Watchlist
-                    </a>
-
-                </div>
-
-            </div>
-
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-list">
+            {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
         </div>
+        {% endif %}
+    {% endwith %}
 
-        {% endfor %}
-
+    <div class="page-header">
+        <h1>{{ title }}</h1>
+        <form class="search-box" method="GET" action="{{ url_for('movies') }}">
+            <input type="text" name="search" value="{{ search }}" placeholder="Search movies...">
+            <button type="submit">Search</button>
+        </form>
     </div>
 
+    {% if movies %}
+    <div class="movies-grid">
+        {% for movie in movies %}
+        <div class="movie-card">
+            <img src="{{ poster_url(movie.poster_path) }}" alt="{{ movie.title }}">
+            <div class="card-body">
+                <h3>{{ movie.title }}</h3>
+                <p class="muted">{{ movie.overview[:120] }}{% if movie.overview|length > 120 %}...{% endif %}</p>
+                <p>TMDB rating: {{ movie.vote_average or "N/A" }}</p>
+
+                <form class="rating-form" action="{{ url_for('rate_movie', movie_id=movie.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <select name="rating" aria-label="Movie rating">
+                        {% for score in range(1, 11) %}
+                        <option value="{{ score }}">{{ score }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Rate</button>
+                </form>
+
+                <div class="buttons">
+                    <a class="button-link" href="{{ url_for('movie_details', movie_id=movie.id) }}">View Details</a>
+                    <form action="{{ url_for('add_favorite', movie_id=movie.id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit">Add Favorite</button>
+                    </form>
+                    <form action="{{ url_for('add_watchlist', movie_id=movie.id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit">Add Watchlist</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">No movies to show right now.</div>
+    {% endif %}
 </div>
 
 </body>

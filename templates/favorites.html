@@ -1,107 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-    <title>Favorites</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorites | MediaHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
 <nav>
-
-    <div class="logo">
-        🎬 MediaHub
-    </div>
-
+    <div class="logo">MediaHub</div>
     <ul>
-
-        <li><a href="/">Home</a></li>
-
-        <li><a href="/movies">Movies</a></li>
-
-        <li><a href="/watchlist">Watchlist</a></li>
-
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('movies') }}">Movies</a></li>
+        <li><a href="{{ url_for('music') }}">Music</a></li>
+        <li><a class="active" href="{{ url_for('favorites') }}">Favorites</a></li>
+        <li><a href="{{ url_for('watchlist_page') }}">Watchlist</a></li>
+        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+        <li>
+            <form class="nav-form" action="{{ url_for('logout') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit">Logout</button>
+            </form>
+        </li>
     </ul>
-
 </nav>
 
 <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-list">
+            {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
 
-    <h1>Favorite Movies</h1>
+    <div class="page-header">
+        <h1>Favorite Movies</h1>
+        <span class="count-pill">{{ favorite_count }} saved</span>
+    </div>
 
-    <br><br>
-
-    <div class="movies-grid">
-
+    {% if favorites %}
+    <div class="collection-grid">
         {% for movie in favorites %}
-
         <div class="movie-card">
-
-            <img src="https://image.tmdb.org/t/p/w500{{ movie.image }}">
-
-            <h3>{{ movie.title }}</h3>
-
-            <p>⭐ {{ movie.rating }}</p>
-
-            <div class="buttons">
-
-                <a href="/delete_favorite/{{ movie.id }}">
-                    <button>Delete</button>
-                </a>
-
+            <img src="{{ poster_url(movie.image) }}" alt="{{ movie.title }}">
+            <div class="card-body">
+                <h3>{{ movie.title }}</h3>
+                <p>Rating: {{ movie.rating or "N/A" }}</p>
+                <form action="{{ url_for('delete_favorite', favorite_id=movie.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit">Remove from Favorites</button>
+                </form>
             </div>
-
         </div>
-
         {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">You have not saved any favorite movies yet.</div>
+    {% endif %}
 
+    <div class="page-header section-header">
+        <h1>Favorite Songs</h1>
+        <span class="count-pill">{{ song_count }} saved</span>
     </div>
 
-    <br><br><br>
-
-    <h1>Favorite Songs</h1>
-
-    <br><br>
-
-    <div class="movies-grid">
-
+    {% if songs %}
+    <div class="music-container">
         {% for song in songs %}
-
-        <div class="movie-card">
-
-            <img src="{{ song.image }}">
-
+        <div class="music-card">
+            <img src="{{ song.image or default_avatar }}" alt="{{ song.title }}">
             <h3>{{ song.title }}</h3>
-
             <p>{{ song.artist }}</p>
-
-            <div class="buttons">
-
-                <a target="_blank"
-                   href="{{ song.spotify_url }}">
-
-                    <button>
-                        Open Spotify
-                    </button>
-
-                </a>
-
-                <a href="/delete_song/{{ song.id }}">
-                    <button>Delete</button>
-                </a>
-
-            </div>
-
+            <a class="button-link" target="_blank" href="{{ song.spotify_url }}">Open Spotify</a>
+            <form action="{{ url_for('delete_song', song_id=song.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit">Remove Song</button>
+            </form>
         </div>
-
         {% endfor %}
-
     </div>
-
+    {% else %}
+    <div class="empty-state">You have not saved any favorite songs yet.</div>
+    {% endif %}
 </div>
 
 </body>

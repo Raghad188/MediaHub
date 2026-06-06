@@ -1,66 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-    <title>Watchlist</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watchlist | MediaHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
 <nav>
-
-    <div class="logo">
-        🎬 MediaHub
-    </div>
-
+    <div class="logo">MediaHub</div>
     <ul>
-
-        <li><a href="/">Home</a></li>
-
-        <li><a href="/movies">Movies</a></li>
-
-        <li><a href="/favorites">Favorites</a></li>
-
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('movies') }}">Movies</a></li>
+        <li><a href="{{ url_for('music') }}">Music</a></li>
+        <li><a href="{{ url_for('favorites') }}">Favorites</a></li>
+        <li><a class="active" href="{{ url_for('watchlist_page') }}">Watchlist</a></li>
+        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+        <li>
+            <form class="nav-form" action="{{ url_for('logout') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit">Logout</button>
+            </form>
+        </li>
     </ul>
-
 </nav>
 
 <div class="container">
-
-    <h1>My Watchlist</h1>
-
-    <br><br>
-
-    <div class="movies-grid">
-
-        {% for movie in watchlist %}
-
-        <div class="movie-card">
-
-            <img src="https://image.tmdb.org/t/p/w500{{ movie.image }}">
-
-            <h3>{{ movie.title }}</h3>
-
-            <p>⭐ {{ movie.rating }}</p>
-
-            <div class="buttons">
-
-                <a href="/delete_watchlist/{{ movie.id }}">
-                    <button>Delete</button>
-                </a>
-
-            </div>
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-list">
+            {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
         </div>
+        {% endif %}
+    {% endwith %}
 
-        {% endfor %}
-
+    <div class="page-header">
+        <h1>My Watchlist</h1>
+        <span class="count-pill">{{ watchlist_count }} saved</span>
     </div>
 
+    {% if watchlist %}
+    <div class="collection-grid">
+        {% for movie in watchlist %}
+        <div class="movie-card">
+            <img src="{{ poster_url(movie.image) }}" alt="{{ movie.title }}">
+            <div class="card-body">
+                <h3>{{ movie.title }}</h3>
+                <p>Rating: {{ movie.rating or "N/A" }}</p>
+                <a class="button-link" href="{{ url_for('movie_details', movie_id=movie.movie_id) }}">View Details</a>
+                <form action="{{ url_for('delete_watchlist', watchlist_id=movie.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit">Remove from Watchlist</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">Your watchlist is empty.</div>
+    {% endif %}
 </div>
 
 </body>

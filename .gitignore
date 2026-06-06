@@ -1,5 +1,8 @@
 database.db
 instance/
 __pycache__/
+.env
+.env.*
+!.env.example
 .envs
 .cache
